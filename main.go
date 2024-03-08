@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/user"
 	"strings"
 	"time"
 
@@ -13,7 +14,24 @@ import (
 	"github.com/jedib0t/go-pretty/table"
 )
 
-const fileName = "/home/amir/go/src/github.com/torexanovich/learning/course/maxim-go/todo_file/todos.txt"
+func getTodoFilePath() string {
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+	path := usr.HomeDir + "/todos.txt"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		file, err := os.Create(path)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+	}
+	
+	return path
+}
+
+var fileName = getTodoFilePath()
 
 func WriteToFile(todo string) {
 	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
